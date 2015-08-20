@@ -10,15 +10,36 @@
 
 require 'csv'
 
-CSV.foreach("db/seeds.csv") do |row|
-  album = {
-      musician:  row[0],
-      album:     row[1],
-      label:     row[2],
+CSV.foreach("db/seeds.csv", :headers => true) do |row|
+  data = {
+      musician:  row[0].strip,
+      album:     row[1].strip,
+      label:     row[2].strip,
       edition:   row[3].to_i,
-      crown:     (row[4] == "No"? false : true),
-      core:      (row[5] == "No"? false : true),
-      best_1001: (row[6] == "No"? false : true)
+      crown:     (row[4] == "Yes"),
+      core:      (row[5] == "Yes"),
+      best_1001: (row[6] == "Yes")
   }
-  puts album
+
+  # http://apidock.com/rails/ActiveRecord/Relation/first_or_create
+  myArtist = Artist.where(name: data[:musician]).first_or_create do |artist|
+    artist.name = data[:musician]
+  end
+
+  myLabel = RecordLabel.where(name: data[:label]).first_or_create do |record_label|
+    record_label.name = data[:label]
+  end
+
+  Album.where(name: data[:album]).first_or_create do |album|
+    # Attributes of album
+    album.name         = data[:album]
+    album.edition      = data[:edition]
+    album.is_crown     = data[:crown]
+    album.is_core      = data[:core]
+    album.is_best_1001 = data[:best_1001]
+
+    # Relationships of album
+    album.artist       = myArtist
+    album.record_label = myLabel
+  end
 end
