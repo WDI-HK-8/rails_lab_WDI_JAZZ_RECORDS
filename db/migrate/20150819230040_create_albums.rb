@@ -1,6 +1,6 @@
 #
 # rails g model Album name:string edition:string is_crown:boolean is_core:boolean is_best_1001:boolean
-# 
+#
 class CreateAlbums < ActiveRecord::Migration
   def change
     create_table :albums do |t|
